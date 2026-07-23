@@ -247,7 +247,27 @@ local function downloadDependencies()
 	for _, backend in ipairs(ENABLED_BACKENDS) do
 		local repo = REPOS[backend]
 		if repo then
-			cloneRepo(repo.name, repo.dir, repo.url, repo.version)
+				cloneRepo(repo.name, repo.dir, repo.url, repo.version)
+		end
+	end
+
+	-- Pin webgpu.h/wgpu.h to versions matching wgpu-native v29.0.0.0's ABI.
+	-- The webgpu-headers repo cloned above (REPOS.wgpu) tracks a commit that
+	-- predates several breaking WebGPU spec changes wgpu-native v29 has
+	-- since adopted (WGPUBindGroupLayoutEntry semantics, struct field
+	-- layout, etc). Using the older cloned headers compiles fine but is
+	-- ABI-incompatible at runtime with a v29 libwgpu_native — see the repo's
+	-- README/CHANGELOG for the full story. This overwrites the cloned
+	-- webgpu.h and adds the wgpu-native-specific wgpu.h (which the clone
+	-- never provides at all) with versions known to match.
+	if isBackendEnabled("wgpu") then
+		local ok, err = os.copyfile("patches/webgpu-headers/webgpu.h", path.translate(REPOS.wgpu.dir .. "/webgpu.h"))
+		if not ok then
+				error("Failed to copy patched webgpu.h: " .. tostring(err))
+		end
+		ok, err = os.copyfile("patches/webgpu-headers/wgpu.h", path.translate(REPOS.wgpu.dir .. "/wgpu.h"))
+		if not ok then
+				error("Failed to copy patched wgpu.h: " .. tostring(err))
 		end
 	end
 end
