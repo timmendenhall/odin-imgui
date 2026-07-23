@@ -1,6 +1,6 @@
 package imgui_impl_wgpu
 
-import im "./../"
+import im "./../../"
 
 import "vendor:wgpu"
 
