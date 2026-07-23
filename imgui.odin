@@ -2336,6 +2336,7 @@ foreign imguilib {
 		idx: StyleVar,
 		val: f32) ---
 	// modify a style ImVec2 variable. "
+@(link_name = "ImGui_PushStyleVarImVec2")
 	PushStyleVarVec2 :: proc(
 		idx: StyleVar,
 		val: Vec2) ---
